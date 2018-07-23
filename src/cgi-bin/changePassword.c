@@ -3,12 +3,6 @@
 #include "tools/db.c"
 
 
-/*
- 学生ID < 10000
- 老师ID > 10000
-
-*/
-
 int main(void)
 {
     char *buf, *query, *env, *p1, *p2, *p3, *p4, *p5;
@@ -35,7 +29,7 @@ int main(void)
     *p2 = '\0';
     strcpy(arg1, p2+1);
 
-    /* 提取Password */
+    /* 提取旧Password */
     // p3 = strchr(p1+1, '=');
     p3 = strchr(p1+1, '&');
     *p3 = '\0';
@@ -43,28 +37,36 @@ int main(void)
     *p4 = '\0';
     strcpy(arg2, p4+1);
 
-    /* 用户类别 */
+    /* 获取新密码 */
     p5 = strchr(p3+1, '=');
     *p5 = '\0';
     strcpy(arg3, p5+1);
 
+
+
+
     FILE * pFile;
     long lSize;
     size_t result;
-    // 密码验证成功，返回个人中心
-    char password[32];
+    char password[32]={0};
 
-    if (!strcmp(arg3, "teacher"))
+    if (atoi(arg1) > 10000)
     {
         findTeacherById(atoi(arg1), password);
+        sprintf(content, "%s %s %s %s", arg1, arg2, arg3, password);
+
     }
-    else if(!strcmp(arg3, "student"))
+    else if(atoi(arg1) < 10000)
     {
         findStudentById(atoi(arg1), password);
     }
 
     if (!strcmp(arg2, password))
     {
+        if (atoi(arg1) < 10000)
+            updateStudentById(atoi(arg1), arg3);
+        else
+            updateTeacherById(atoi(arg1), arg3);
         /* 若要一个byte不漏地读入整个文件，只能采用二进制方式打开 */ 
         pFile = fopen ("../view/profile.html", "rb" );
 
@@ -73,7 +75,7 @@ int main(void)
     else
     {
         pFile = fopen ("../view/login.html", "rb" );
-        sprintf(content, "%s", "密码不对");
+        // sprintf(content, "%s", "密码不对");
 
     }
 
@@ -109,6 +111,7 @@ int main(void)
     /* 生成响应主体 */
     int i = str_replace(buffercp, buffer, "{ID}", arg1);
     sprintf(content, "%s%s", content, buffercp);
+    // sprintf(content, "%s%s%s%s", content, arg1, arg2, arg3);
 
     /* 生成HTTP响应 */
     printf("Content-length: %d\r\n", (int)strlen(content));

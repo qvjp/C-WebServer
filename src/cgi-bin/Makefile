@@ -2,10 +2,13 @@ BUILD = ../../build
 BIN = ../../bin/cgi-bin
 CC = gcc
 CFLAGS = -O2 -I .. -Wall
-
+CFLAGS += -L/usr/local/mysql/lib -lmysqlclient -lssl -lcrypto
+CFLAGS += -I/usr/local/mysql/include
 BIN_PROGRAMS := \
 	adder \
-	login
+	login \
+	createPaper \
+	changePassword
 
 all: $(addprefix $(BUILD)/cgi-bin/, $(BIN_PROGRAMS)) install-bin
 
